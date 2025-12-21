@@ -1,0 +1,161 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class ShopItem
+{
+    public ItemData item;
+    public int price;
+}
+
+public class Shop : InteractableBase
+{
+    [Header("商店设置")]
+    [SerializeField] private List<ShopItem> shopItems = new List<ShopItem>();
+    
+    [Header("UI引用")]
+    [SerializeField] private GameObject shopPanel;
+    [SerializeField] private Transform itemListParent;
+    [SerializeField] private GameObject itemSlotPrefab;
+    [SerializeField] private Text moneyText;
+    [SerializeField] private Button closeButton;
+    
+    private Inventory inventory;
+    private GameManager gameManager;
+    private List<GameObject> itemSlotInstances = new List<GameObject>();
+    
+    private void Start()
+    {
+        inventory = FindObjectOfType<Inventory>();
+        gameManager = GameManager.Instance;
+        
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(CloseShopPanel);
+        }
+        
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
+    }
+    
+    public override void OnInteract()
+    {
+        if (!CanInteract()) return;
+        
+        OpenShopPanel();
+    }
+    
+    public override string GetInteractionPrompt()
+    {
+        return "按E打开商店";
+    }
+    
+    private void OpenShopPanel()
+    {
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(true);
+            UpdateMoneyDisplay();
+            UpdateShopItemList();
+        }
+    }
+    
+    private void CloseShopPanel()
+    {
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
+    }
+    
+    private void UpdateMoneyDisplay()
+    {
+        if (moneyText != null && gameManager != null)
+        {
+            moneyText.text = $"货币: {gameManager.Money}";
+        }
+    }
+    
+    private void UpdateShopItemList()
+    {
+        if (itemListParent == null) return;
+        
+        // 清除现有显示
+        foreach (GameObject slot in itemSlotInstances)
+        {
+            if (slot != null)
+            {
+                Destroy(slot);
+            }
+        }
+        itemSlotInstances.Clear();
+        
+        // 创建商品槽
+        foreach (ShopItem shopItem in shopItems)
+        {
+            if (shopItem.item != null)
+            {
+                GameObject slotInstance = CreateShopItemSlot(shopItem);
+                if (slotInstance != null)
+                {
+                    itemSlotInstances.Add(slotInstance);
+                }
+            }
+        }
+    }
+    
+    private GameObject CreateShopItemSlot(ShopItem shopItem)
+    {
+        if (itemSlotPrefab == null || itemListParent == null) return null;
+        
+        GameObject slot = Instantiate(itemSlotPrefab, itemListParent);
+        
+        // 查找文本组件显示物品名称
+        Text nameText = slot.GetComponentInChildren<Text>();
+        if (nameText != null)
+        {
+            nameText.text = $"{shopItem.item.itemName} - {shopItem.price} 货币";
+        }
+        
+        // 添加购买按钮
+        Button buyButton = slot.GetComponentInChildren<Button>();
+        if (buyButton != null)
+        {
+            buyButton.onClick.AddListener(() => BuyItem(shopItem));
+            Text buttonText = buyButton.GetComponentInChildren<Text>();
+            if (buttonText != null)
+            {
+                buttonText.text = "购买";
+            }
+        }
+        
+        return slot;
+    }
+    
+    private void BuyItem(ShopItem shopItem)
+    {
+        if (inventory == null || gameManager == null || shopItem.item == null) return;
+        
+        if (gameManager.Money >= shopItem.price)
+        {
+            if (inventory.AddItem(shopItem.item))
+            {
+                gameManager.SpendMoney(shopItem.price);
+                UpdateMoneyDisplay();
+                Debug.Log($"购买了 {shopItem.item.itemName}，花费 {shopItem.price} 货币");
+            }
+            else
+            {
+                Debug.Log("背包已满，无法购买");
+            }
+        }
+        else
+        {
+            Debug.Log("货币不足");
+        }
+    }
+}
+
