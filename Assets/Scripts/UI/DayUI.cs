@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class DayUI : MonoBehaviour
 {
     [Header("UI引用")]
-    [SerializeField] private Text dayText;
+    [SerializeField] private TextMeshProUGUI dayText;
     
     private DayManager dayManager;
     

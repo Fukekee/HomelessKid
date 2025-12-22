@@ -23,10 +23,17 @@ public class PlayerCameraController : MonoBehaviour
             playerCamera = Camera.main;
         }
         
-        // 如果没有在Inspector中设置，尝试自动加载
+        // 如果Inspector中没有设置，尝试从项目中查找
         if (inputActions == null)
         {
-            inputActions = Resources.Load<InputActionAsset>("InputSystem_Actions");
+            #if UNITY_EDITOR
+            string[] guids = UnityEditor.AssetDatabase.FindAssets("InputSystem_Actions t:InputActionAsset");
+            if (guids.Length > 0)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                inputActions = UnityEditor.AssetDatabase.LoadAssetAtPath<InputActionAsset>(path);
+            }
+            #endif
         }
         
         if (inputActions != null)

@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SurvivalUI : MonoBehaviour
 {
     [Header("UI引用")]
-    [SerializeField] private Text hungerText;
-    [SerializeField] private Text healthText;
+    [SerializeField] private TextMeshProUGUI hungerText;
+    [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Slider hungerSlider;
     [SerializeField] private Slider healthSlider;
     
