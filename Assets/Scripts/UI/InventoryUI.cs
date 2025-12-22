@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,6 +14,8 @@ public class InventoryUI : MonoBehaviour
     
     private Inventory inventory;
     private List<GameObject> itemSlotInstances = new List<GameObject>();
+
+    public bool IsOpen => inventoryPanel != null && inventoryPanel.activeSelf;
     
     private void Awake()
     {
@@ -108,18 +111,48 @@ public class InventoryUI : MonoBehaviour
         GameObject slot = Instantiate(itemSlotPrefab, itemListParent);
         
         // 查找文本组件显示物品名称
-        Text nameText = slot.GetComponentInChildren<Text>();
-        if (nameText != null)
+        TMP_Text nameTmp = null;
+        foreach (var t in slot.GetComponentsInChildren<TMP_Text>(true))
         {
-            nameText.text = $"{item.itemName} (价值: {item.value})";
+            // 排除按钮上的文字（例如“使用”）
+            if (t.GetComponentInParent<Button>() == null)
+            {
+                nameTmp = t;
+                break;
+            }
+        }
+
+        if (nameTmp != null)
+            nameTmp.text = $"{item.itemName} (价值: {item.value})";
+        else
+        {
+            // 兼容旧的 UGUI Text
+            Text nameText = slot.GetComponentInChildren<Text>(true);
+            if (nameText != null)
+                nameText.text = $"{item.itemName} (价值: {item.value})";
         }
         
         // 添加使用按钮
         Button useButton = slot.GetComponentInChildren<Button>();
-        if (useButton != null && item.isUsable)
+        if (useButton != null)
         {
-            useButton.onClick.AddListener(() => UseItem(item));
-            useButton.GetComponentInChildren<Text>().text = "使用";
+            // 只有可使用物品才显示按钮，避免沿用预制体里的默认文案（比如“购买”）
+            useButton.gameObject.SetActive(item.isUsable);
+            if (item.isUsable)
+            {
+                useButton.onClick.AddListener(() => UseItem(item));
+
+                var buttonTmp = useButton.GetComponentInChildren<TMP_Text>(true);
+                if (buttonTmp != null)
+                    buttonTmp.text = "使用";
+                else
+                {
+                    // 兼容旧的 UGUI Text
+                    var buttonText = useButton.GetComponentInChildren<Text>(true);
+                    if (buttonText != null)
+                        buttonText.text = "使用";
+                }
+            }
         }
         
         return slot;
@@ -147,5 +180,6 @@ public class InventoryUI : MonoBehaviour
         }
     }
 }
+
 
 

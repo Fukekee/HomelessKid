@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro;
 
 [System.Serializable]
 public class ShopItem
@@ -18,7 +19,7 @@ public class Shop : InteractableBase
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private Transform itemListParent;
     [SerializeField] private GameObject itemSlotPrefab;
-    [SerializeField] private Text moneyText;
+    [SerializeField] private TextMeshProUGUI moneyText;
     [SerializeField] private Button closeButton;
     
     private Inventory inventory;
@@ -114,10 +115,25 @@ public class Shop : InteractableBase
         GameObject slot = Instantiate(itemSlotPrefab, itemListParent);
         
         // 查找文本组件显示物品名称
-        Text nameText = slot.GetComponentInChildren<Text>();
-        if (nameText != null)
+        TMP_Text nameTmp = null;
+        foreach (var t in slot.GetComponentsInChildren<TMP_Text>(true))
         {
-            nameText.text = $"{shopItem.item.itemName} - {shopItem.price} 货币";
+            // 排除按钮上的文字（例如“购买”）
+            if (t.GetComponentInParent<Button>() == null)
+            {
+                nameTmp = t;
+                break;
+            }
+        }
+
+        if (nameTmp != null)
+            nameTmp.text = $"{shopItem.item.itemName} - {shopItem.price} 货币";
+        else
+        {
+            // 兼容旧的 UGUI Text
+            Text nameText = slot.GetComponentInChildren<Text>(true);
+            if (nameText != null)
+                nameText.text = $"{shopItem.item.itemName} - {shopItem.price} 货币";
         }
         
         // 添加购买按钮
@@ -125,10 +141,15 @@ public class Shop : InteractableBase
         if (buyButton != null)
         {
             buyButton.onClick.AddListener(() => BuyItem(shopItem));
-            Text buttonText = buyButton.GetComponentInChildren<Text>();
-            if (buttonText != null)
+            var buttonTmp = buyButton.GetComponentInChildren<TMP_Text>(true);
+            if (buttonTmp != null)
+                buttonTmp.text = "购买";
+            else
             {
-                buttonText.text = "购买";
+                // 兼容旧的 UGUI Text
+                Text buttonText = buyButton.GetComponentInChildren<Text>(true);
+                if (buttonText != null)
+                    buttonText.text = "购买";
             }
         }
         

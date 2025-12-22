@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class InteractionManager : MonoBehaviour
 {
@@ -9,7 +11,7 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private LayerMask interactionLayer = -1;
     
     [Header("UI引用")]
-    [SerializeField] private Text interactionPromptText; // 兼容旧方式
+    [SerializeField] private TextMeshProUGUI interactionPromptText; // 兼容旧方式
     [SerializeField] private UIManager uiManager; // 推荐使用UIManager
     
     [Header("输入设置")]

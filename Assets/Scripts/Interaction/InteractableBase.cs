@@ -42,3 +42,4 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
         Gizmos.DrawWireSphere(transform.position, interactionRange);
     }
 }
+

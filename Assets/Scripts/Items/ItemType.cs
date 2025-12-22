@@ -4,3 +4,4 @@ public enum ItemType
     Material,  // 材料
     Junk       // 杂物
 }
+
