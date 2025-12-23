@@ -11,6 +11,12 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Transform itemListParent;
     [SerializeField] private GameObject itemSlotPrefab;
     [SerializeField] private Button closeButton;
+
+    [Header("布局兜底（当 itemListParent 没有 LayoutGroup 时）")]
+    [SerializeField] private bool useFallbackLayout = true;
+    [SerializeField] private float fallbackRowHeight = 110f;
+    [SerializeField] private float fallbackTopPadding = 0f;
+    [SerializeField] private bool debugLogBuild = false;
     
     private Inventory inventory;
     private List<GameObject> itemSlotInstances = new List<GameObject>();
@@ -93,22 +99,31 @@ public class InventoryUI : MonoBehaviour
         }
         itemSlotInstances.Clear();
         
-        // 创建物品槽
-        foreach (ItemData item in inventory.Items)
+        // 创建物品槽（按堆叠显示）
+        int index = 0;
+        foreach (var stack in inventory.Stacks)
         {
-            GameObject slotInstance = CreateItemSlot(item);
+            if (stack == null || stack.item == null || stack.count <= 0)
+                continue;
+
+            GameObject slotInstance = CreateItemSlot(stack.item, stack.count, index);
             if (slotInstance != null)
             {
                 itemSlotInstances.Add(slotInstance);
+                index++;
             }
         }
+
+        if (debugLogBuild)
+            Debug.Log($"[InventoryUI] Build slots = {itemSlotInstances.Count} (stacks = {inventory.Stacks.Count})");
     }
     
-    private GameObject CreateItemSlot(ItemData item)
+    private GameObject CreateItemSlot(ItemData item, int count, int index)
     {
         if (itemSlotPrefab == null || itemListParent == null) return null;
         
         GameObject slot = Instantiate(itemSlotPrefab, itemListParent);
+        ApplyFallbackLayoutIfNeeded(slot, index);
         
         // 查找文本组件显示物品名称
         TMP_Text nameTmp = null;
@@ -122,14 +137,17 @@ public class InventoryUI : MonoBehaviour
             }
         }
 
+        var desc = string.IsNullOrWhiteSpace(item.description) ? "" : $"\n{item.description}";
+        var line = $"{item.itemName} x{count}\n价值: {item.value}{desc}";
+
         if (nameTmp != null)
-            nameTmp.text = $"{item.itemName} (价值: {item.value})";
+            nameTmp.text = line;
         else
         {
             // 兼容旧的 UGUI Text
             Text nameText = slot.GetComponentInChildren<Text>(true);
             if (nameText != null)
-                nameText.text = $"{item.itemName} (价值: {item.value})";
+                nameText.text = line;
         }
         
         // 添加使用按钮
@@ -157,6 +175,27 @@ public class InventoryUI : MonoBehaviour
         
         return slot;
     }
+
+    private void ApplyFallbackLayoutIfNeeded(GameObject slot, int index)
+    {
+        if (!useFallbackLayout || itemListParent == null || slot == null)
+            return;
+
+        // 如果 Content 上有 LayoutGroup，交给 Unity 的布局系统处理
+        if (itemListParent.GetComponent<LayoutGroup>() != null)
+            return;
+
+        var rt = slot.GetComponent<RectTransform>();
+        if (rt == null)
+            return;
+
+        // 让每个条目从顶部向下排列，避免全部叠在一起
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.anchoredPosition = new Vector2(0f, -fallbackTopPadding - index * fallbackRowHeight);
+        rt.localScale = Vector3.one;
+    }
     
     private void UseItem(ItemData item)
     {
@@ -166,7 +205,7 @@ public class InventoryUI : MonoBehaviour
             if (survivalStats != null && item.itemType == ItemType.Food && item.isUsable)
             {
                 survivalStats.RestoreHunger(item.hungerRestore);
-                inventory.RemoveItem(item);
+                inventory.RemoveItem(item, 1);
             }
         }
     }
@@ -176,7 +215,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (inventory != null)
         {
-            inventory.RemoveItem(item);
+            inventory.RemoveItem(item, 1);
         }
     }
 }

@@ -21,6 +21,11 @@ public class Shop : InteractableBase
     [SerializeField] private GameObject itemSlotPrefab;
     [SerializeField] private TextMeshProUGUI moneyText;
     [SerializeField] private Button closeButton;
+
+    [Header("布局兜底（当 itemListParent 没有 LayoutGroup 时）")]
+    [SerializeField] private bool useFallbackLayout = true;
+    [SerializeField] private float fallbackRowHeight = 110f;
+    [SerializeField] private float fallbackTopPadding = 0f;
     
     private Inventory inventory;
     private GameManager gameManager;
@@ -95,24 +100,27 @@ public class Shop : InteractableBase
         itemSlotInstances.Clear();
         
         // 创建商品槽
+        int index = 0;
         foreach (ShopItem shopItem in shopItems)
         {
             if (shopItem.item != null)
             {
-                GameObject slotInstance = CreateShopItemSlot(shopItem);
+                GameObject slotInstance = CreateShopItemSlot(shopItem, index);
                 if (slotInstance != null)
                 {
                     itemSlotInstances.Add(slotInstance);
+                    index++;
                 }
             }
         }
     }
     
-    private GameObject CreateShopItemSlot(ShopItem shopItem)
+    private GameObject CreateShopItemSlot(ShopItem shopItem, int index)
     {
         if (itemSlotPrefab == null || itemListParent == null) return null;
         
         GameObject slot = Instantiate(itemSlotPrefab, itemListParent);
+        ApplyFallbackLayoutIfNeeded(slot, index);
         
         // 查找文本组件显示物品名称
         TMP_Text nameTmp = null;
@@ -154,6 +162,25 @@ public class Shop : InteractableBase
         }
         
         return slot;
+    }
+
+    private void ApplyFallbackLayoutIfNeeded(GameObject slot, int index)
+    {
+        if (!useFallbackLayout || itemListParent == null || slot == null)
+            return;
+
+        if (itemListParent.GetComponent<LayoutGroup>() != null)
+            return;
+
+        var rt = slot.GetComponent<RectTransform>();
+        if (rt == null)
+            return;
+
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.anchoredPosition = new Vector2(0f, -fallbackTopPadding - index * fallbackRowHeight);
+        rt.localScale = Vector3.one;
     }
     
     private void BuyItem(ShopItem shopItem)

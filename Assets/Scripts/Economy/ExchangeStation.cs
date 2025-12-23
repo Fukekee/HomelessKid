@@ -11,6 +11,11 @@ public class ExchangeStation : InteractableBase
     [SerializeField] private GameObject itemSlotPrefab;
     [SerializeField] private TextMeshProUGUI moneyText;
     [SerializeField] private Button closeButton;
+
+    [Header("布局兜底（当 itemListParent 没有 LayoutGroup 时）")]
+    [SerializeField] private bool useFallbackLayout = true;
+    [SerializeField] private float fallbackRowHeight = 110f;
+    [SerializeField] private float fallbackTopPadding = 0f;
     
     private Inventory inventory;
     private GameManager gameManager;
@@ -84,22 +89,28 @@ public class ExchangeStation : InteractableBase
         }
         itemSlotInstances.Clear();
         
-        // 创建物品槽
-        foreach (ItemData item in inventory.Items)
+        // 创建物品槽（按堆叠显示）
+        int index = 0;
+        foreach (var stack in inventory.Stacks)
         {
-            GameObject slotInstance = CreateItemSlot(item);
+            if (stack == null || stack.item == null || stack.count <= 0)
+                continue;
+
+            GameObject slotInstance = CreateItemSlot(stack.item, stack.count, index);
             if (slotInstance != null)
             {
                 itemSlotInstances.Add(slotInstance);
+                index++;
             }
         }
     }
     
-    private GameObject CreateItemSlot(ItemData item)
+    private GameObject CreateItemSlot(ItemData item, int count, int index)
     {
         if (itemSlotPrefab == null || itemListParent == null) return null;
         
         GameObject slot = Instantiate(itemSlotPrefab, itemListParent);
+        ApplyFallbackLayoutIfNeeded(slot, index);
         
         // 查找文本组件显示物品名称
         TMP_Text nameTmp = null;
@@ -113,14 +124,17 @@ public class ExchangeStation : InteractableBase
             }
         }
 
+        var desc = string.IsNullOrWhiteSpace(item.description) ? "" : $"\n{item.description}";
+        var line = $"{item.itemName} x{count}\n价值: {item.value}{desc}";
+
         if (nameTmp != null)
-            nameTmp.text = $"{item.itemName} - {item.value} 货币";
+            nameTmp.text = line;
         else
         {
             // 兼容旧的 UGUI Text
             Text nameText = slot.GetComponentInChildren<Text>(true);
             if (nameText != null)
-                nameText.text = $"{item.itemName} - {item.value} 货币";
+                nameText.text = line;
         }
         
         // 添加出售按钮
@@ -142,15 +156,34 @@ public class ExchangeStation : InteractableBase
         
         return slot;
     }
+
+    private void ApplyFallbackLayoutIfNeeded(GameObject slot, int index)
+    {
+        if (!useFallbackLayout || itemListParent == null || slot == null)
+            return;
+
+        if (itemListParent.GetComponent<LayoutGroup>() != null)
+            return;
+
+        var rt = slot.GetComponent<RectTransform>();
+        if (rt == null)
+            return;
+
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.anchoredPosition = new Vector2(0f, -fallbackTopPadding - index * fallbackRowHeight);
+        rt.localScale = Vector3.one;
+    }
     
     private void SellItem(ItemData item)
     {
         if (inventory == null || gameManager == null || item == null) return;
         
-        if (inventory.HasItem(item))
+        if (inventory.HasItem(item, 1))
         {
             gameManager.AddMoney(item.value);
-            inventory.RemoveItem(item);
+            inventory.RemoveItem(item, 1);
             UpdateMoneyDisplay();
             UpdateItemList();
             Debug.Log($"出售 {item.itemName}，获得 {item.value} 货币");
