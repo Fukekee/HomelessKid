@@ -1,0 +1,46 @@
+【Unity崩溃修复完成】
+
+问题原因：
+Unity在导入大量新C#脚本时，AssetImportWorker进程崩溃。
+这是Unity的已知问题，在处理Editor脚本时尤其容易发生。
+
+已完成的修复操作：
+✅ 1. 临时禁用了GameBalanceConfigEditor.cs（自定义Inspector脚本）
+✅ 2. 清理了Library\ScriptAssemblies缓存
+✅ 3. 清理了Library\StateCache缓存
+
+接下来的操作步骤：
+
+步骤1：重启Unity
+- 如果Unity还在运行，请完全关闭
+- 重新打开项目
+
+步骤2：等待Unity重新编译
+- Unity会重新导入所有资源
+- 这可能需要2-5分钟
+- 请耐心等待
+
+步骤3：验证系统是否正常
+- 打开Console窗口，检查是否有编译错误
+- 如果没有红色错误，说明修复成功
+
+步骤4：（可选）重新启用Editor增强功能
+如果想要Inspector增强显示（理论数据、警告、快速预设按钮），可以：
+1. 打开 Assets/Scripts/Config/Editor/GameBalanceConfigEditor.cs
+2. 将第2行的 "#if UNITY_EDITOR && FALSE" 改为 "#if UNITY_EDITOR"
+3. 保存文件
+4. 等待Unity重新编译
+
+注意事项：
+- 如果再次崩溃，保持Editor脚本禁用状态
+- 核心功能（GameBalanceConfig.cs 和 GameBalance.cs）不受影响
+- 即使不启用Editor脚本，配置系统也完全可用
+
+测试方法：
+1. Create > Game > Balance Config
+2. 在场景中添加GameBalance组件
+3. 拖入配置文件
+4. 运行游戏，查看Console是否显示"配置加载完成"
+
+如果仍有问题，请查看 Logs\AssetImportWorker*.log 文件
+

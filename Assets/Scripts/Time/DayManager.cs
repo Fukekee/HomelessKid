@@ -33,8 +33,11 @@ public class DayManager : MonoBehaviour
     
     private void Update()
     {
-        // 更新时间（如果需要在时间到达后自动进入新一天，可以在这里处理）
-        // 目前我们通过过夜系统手动触发新一天
+        // 更新当前一天的时间
+        AddTime(Time.deltaTime);
+        
+        // 注意：不自动进入新一天，需要通过小屋睡觉来触发
+        // 即使时间超过dayDuration，也要等玩家回到小屋过夜
     }
     
     public void StartNewDay()
