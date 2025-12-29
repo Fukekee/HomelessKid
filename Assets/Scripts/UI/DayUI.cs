@@ -9,32 +9,33 @@ public class DayUI : MonoBehaviour
     
     private DayManager dayManager;
     
-    private void Awake()
+    private void Start()
     {
+        // 在 Start 中获取 DayManager，确保它已经初始化
         dayManager = DayManager.Instance;
-    }
-    
-    private void OnEnable()
-    {
+        
         if (dayManager != null)
         {
+            // 订阅事件
             dayManager.OnDayChanged += UpdateUI;
+            
+            // 立即更新一次 UI
+            UpdateUI(dayManager.CurrentDay);
+            
+            Debug.Log($"[DayUI] 已连接到 DayManager，当前第 {dayManager.CurrentDay} 天");
+        }
+        else
+        {
+            Debug.LogError("[DayUI] 无法找到 DayManager！");
         }
     }
     
-    private void OnDisable()
+    private void OnDestroy()
     {
+        // 取消订阅事件
         if (dayManager != null)
         {
             dayManager.OnDayChanged -= UpdateUI;
-        }
-    }
-    
-    private void Start()
-    {
-        if (dayManager != null)
-        {
-            UpdateUI(dayManager.CurrentDay);
         }
     }
     
@@ -43,6 +44,7 @@ public class DayUI : MonoBehaviour
         if (dayText != null)
         {
             dayText.text = $"第 {day} 天";
+            Debug.Log($"[DayUI] UI 已更新：第 {day} 天");
         }
     }
 }
