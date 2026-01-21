@@ -40,7 +40,7 @@ Texture2D:
   m_ColorSpace: 1
   m_PlatformBlob: 
   image data: 1
-  _typelessdata: cd
+  _typelessdata: 00
   m_StreamData:
     serializedVersion: 2
     offset: 0
@@ -119,9 +119,9 @@ Material:
     - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 1
-    - _ScaleRatioB: 1
-    - _ScaleRatioC: 1
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 0.73125
+    - _ScaleRatioC: 0.73125
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -235,7 +235,49 @@ MonoBehaviour:
     m_Height: 1023
   m_FontFeatureTable:
     m_MultipleSubstitutionRecords: []
-    m_LigatureSubstitutionRecords: []
+    m_LigatureSubstitutionRecords:
+    - m_ComponentGlyphIDs: 460000005000000015000000
+      m_LigatureGlyphID: 42142
+    - m_ComponentGlyphIDs: 460000005000000016000000
+      m_LigatureGlyphID: 42143
+    - m_ComponentGlyphIDs: 460000001200000052000000
+      m_LigatureGlyphID: 547
+    - m_ComponentGlyphIDs: 4600000050000000
+      m_LigatureGlyphID: 1083
+    - m_ComponentGlyphIDs: 4600000046000000
+      m_LigatureGlyphID: 1086
+    - m_ComponentGlyphIDs: 440000001200000046000000
+      m_LigatureGlyphID: 42153
+    - m_ComponentGlyphIDs: 4400000050000000
+      m_LigatureGlyphID: 42154
+    - m_ComponentGlyphIDs: 37000000480000004f000000
+      m_LigatureGlyphID: 549
+    - m_ComponentGlyphIDs: 500000005000000015000000
+      m_LigatureGlyphID: 42144
+    - m_ComponentGlyphIDs: 500000005000000016000000
+      m_LigatureGlyphID: 42145
+    - m_ComponentGlyphIDs: 500000004c00000051000000
+      m_LigatureGlyphID: 42150
+    - m_ComponentGlyphIDs: 5000000050000000
+      m_LigatureGlyphID: 1082
+    - m_ComponentGlyphIDs: 500000004a000000
+      m_LigatureGlyphID: 1080
+    - m_ComponentGlyphIDs: 5000000015000000
+      m_LigatureGlyphID: 1085
+    - m_ComponentGlyphIDs: 5000000016000000
+      m_LigatureGlyphID: 42148
+    - m_ComponentGlyphIDs: 560000004800000046000000
+      m_LigatureGlyphID: 42149
+    - m_ComponentGlyphIDs: 4e0000005000000015000000
+      m_LigatureGlyphID: 42146
+    - m_ComponentGlyphIDs: 4e0000005000000016000000
+      m_LigatureGlyphID: 42147
+    - m_ComponentGlyphIDs: 4e00000050000000
+      m_LigatureGlyphID: 1084
+    - m_ComponentGlyphIDs: 4e0000004a000000
+      m_LigatureGlyphID: 1081
+    - m_ComponentGlyphIDs: 3100000052000000
+      m_LigatureGlyphID: 362
     m_GlyphPairAdjustmentRecords: []
     m_MarkToBaseAdjustmentRecords: []
     m_MarkToMarkAdjustmentRecords: []

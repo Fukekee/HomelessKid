@@ -89,3 +89,6 @@ public class Shelter : InteractableBase
 }
 
 
+
+
+

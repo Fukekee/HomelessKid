@@ -11,11 +11,9 @@ public class TrashDrop
 
 public class TrashBin : InteractableBase
 {
-    [Header("翻找设置")]
-    [SerializeField] private float searchDuration = 3f; // 翻找所需时间（秒）
-    [SerializeField] private float cooldownDuration = 10f; // 冷却时间（秒）
-    [SerializeField] private float healthDamageChance = 0.3f; // 降低健康度的概率
-    [SerializeField] private float healthDamageAmount = 10f; // 降低的健康度数值
+    [Header("配置来源")]
+    [Tooltip("所有数值从 GameBalanceConfig 读取")]
+    [SerializeField] private bool useGameBalanceConfig = true;
     
     [Header("掉落表")]
     [SerializeField] private List<TrashDrop> dropTable = new List<TrashDrop>();
@@ -26,6 +24,9 @@ public class TrashBin : InteractableBase
     private Inventory inventory;
     private SurvivalStats survivalStats;
     
+    // 缓存配置
+    private GameBalanceConfig config;
+    
     private void Start()
     {
         inventory = FindObjectOfType<Inventory>();
@@ -34,6 +35,17 @@ public class TrashBin : InteractableBase
         if (inventory == null)
         {
             Debug.LogError("找不到Inventory组件");
+        }
+        
+        // 加载配置
+        if (useGameBalanceConfig && GameBalance.Config != null)
+        {
+            config = GameBalance.Config;
+            Debug.Log("[TrashBin] 已从 GameBalanceConfig 加载配置");
+        }
+        else
+        {
+            Debug.LogWarning("[TrashBin] 未找到 GameBalanceConfig，使用默认值");
         }
     }
     
@@ -75,6 +87,9 @@ public class TrashBin : InteractableBase
     {
         isSearching = true;
         
+        // 从配置读取翻找时间
+        float searchDuration = config != null ? config.binSearchTime : 2.5f;
+        
         // 显示进度条（如果有UIManager）
         UIManager uiManager = FindObjectOfType<UIManager>();
         if (uiManager != null)
@@ -95,12 +110,19 @@ public class TrashBin : InteractableBase
         // 翻找完成，掉落物品
         DropItems();
         
+        // 从配置读取风险概率和伤害
+        bool hasRisk = config != null ? config.RollBinRisk() : (Random.value < 0.15f);
+        float damageAmount = config != null ? config.binRiskDamage : 10f;
+        
         // 有概率降低健康度
-        if (Random.value < healthDamageChance && survivalStats != null)
+        if (hasRisk && survivalStats != null)
         {
-            survivalStats.ReduceHealth(healthDamageAmount);
-            Debug.Log($"翻找垃圾桶时受了伤，健康度 -{healthDamageAmount}");
+            survivalStats.ReduceHealth(damageAmount);
+            Debug.Log($"翻找垃圾桶时受了伤，健康度 -{damageAmount}");
         }
+        
+        // 从配置读取冷却时间
+        float cooldownDuration = config != null ? config.binCooldown : 150f;
         
         // 开始冷却
         isOnCooldown = true;
@@ -118,14 +140,32 @@ public class TrashBin : InteractableBase
     {
         if (inventory == null || dropTable.Count == 0) return;
         
-        // 根据掉落表随机掉落物品
-        foreach (TrashDrop drop in dropTable)
+        // 从配置获取掉落数量
+        int lootCount = config != null ? config.GetBinLootCount() : Random.Range(2, 5);
+        
+        // 根据掉落表随机掉落物品（限制数量）
+        int droppedCount = 0;
+        List<TrashDrop> shuffledDrops = new List<TrashDrop>(dropTable);
+        
+        // 打乱顺序以增加随机性
+        for (int i = 0; i < shuffledDrops.Count; i++)
         {
+            TrashDrop temp = shuffledDrops[i];
+            int randomIndex = Random.Range(i, shuffledDrops.Count);
+            shuffledDrops[i] = shuffledDrops[randomIndex];
+            shuffledDrops[randomIndex] = temp;
+        }
+        
+        foreach (TrashDrop drop in shuffledDrops)
+        {
+            if (droppedCount >= lootCount) break;
+            
             if (drop.item != null && Random.value <= drop.dropChance)
             {
                 if (inventory.AddItem(drop.item))
                 {
                     Debug.Log($"从垃圾桶找到: {drop.item.itemName}");
+                    droppedCount++;
                 }
                 else
                 {
@@ -134,6 +174,8 @@ public class TrashBin : InteractableBase
                 }
             }
         }
+        
+        Debug.Log($"[TrashBin] 本次掉落 {droppedCount} 个物品");
     }
     
     public override string GetInteractionPrompt()
@@ -156,5 +198,6 @@ public class TrashBin : InteractableBase
         return base.CanInteract() && !isSearching && !isOnCooldown;
     }
 }
+
 
 

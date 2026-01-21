@@ -3,16 +3,20 @@ using System.Collections.Generic;
 
 public class TrashSpawner : MonoBehaviour
 {
+    [Header("配置来源")]
+    [Tooltip("所有数值从 GameBalanceConfig 读取")]
+    [SerializeField] private bool useGameBalanceConfig = true;
+    
     [Header("生成设置")]
     [SerializeField] private GameObject groundTrashPrefab;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
     [SerializeField] private List<ItemData> trashItemPool = new List<ItemData>(); // 可生成的垃圾物品池
     
-    [Header("生成数量")]
-    [SerializeField] private int trashPerDay = 10; // 每天生成的垃圾数量
-    
     private List<GameObject> spawnedTrash = new List<GameObject>();
     private DayManager dayManager;
+    
+    // 缓存配置
+    private GameBalanceConfig config;
     
     private void Start()
     {
@@ -21,6 +25,17 @@ public class TrashSpawner : MonoBehaviour
         if (dayManager != null)
         {
             dayManager.OnNewDayStarted += SpawnTrash;
+        }
+        
+        // 加载配置
+        if (useGameBalanceConfig && GameBalance.Config != null)
+        {
+            config = GameBalance.Config;
+            Debug.Log("[TrashSpawner] 已从 GameBalanceConfig 加载配置");
+        }
+        else
+        {
+            Debug.LogWarning("[TrashSpawner] 未找到 GameBalanceConfig，使用默认值");
         }
         
         // 第一天开始时生成垃圾
@@ -45,6 +60,11 @@ public class TrashSpawner : MonoBehaviour
             Debug.LogWarning("TrashSpawner配置不完整");
             return;
         }
+        
+        // 从配置读取每天生成的垃圾数量（随机范围）
+        int minSpawn = config != null ? config.dailyGroundTrashSpawnMin : 8;
+        int maxSpawn = config != null ? config.dailyGroundTrashSpawnMax : 12;
+        int trashPerDay = Random.Range(minSpawn, maxSpawn + 1);
         
         // 随机选择生成点
         List<Transform> availableSpawnPoints = new List<Transform>(spawnPoints);
@@ -73,7 +93,7 @@ public class TrashSpawner : MonoBehaviour
             spawnedTrash.Add(trash);
         }
         
-        Debug.Log($"生成了 {spawnCount} 个垃圾");
+        Debug.Log($"[TrashSpawner] 生成了 {spawnCount} 个垃圾（配置范围: {minSpawn}-{maxSpawn}）");
     }
     
     private void ClearSpawnedTrash()
@@ -101,5 +121,6 @@ public class TrashSpawner : MonoBehaviour
         }
     }
 }
+
 
 
