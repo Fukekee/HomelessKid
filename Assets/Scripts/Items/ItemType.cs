@@ -1,7 +1,8 @@
 public enum ItemType
 {
-    Food,      // 食物
-    Material,  // 材料
-    Junk       // 杂物
+    Food,           // 食物
+    Material,       // 材料
+    Junk,           // 杂物
+    BuildingMaterial // 建筑材料
 }
 

@@ -78,6 +78,43 @@ public class DayManager : MonoBehaviour
     {
         currentDayTime += deltaTime;
     }
+    
+    /// <summary>
+    /// 判断当前是否为夜晚时间
+    /// </summary>
+    public bool IsNightTime()
+    {
+        if (config == null) return false;
+        
+        // 将当前时间转换为游戏内小时（0-24）
+        // 假设一天24小时，currentDayTime是秒数
+        float hoursInDay = 24f;
+        float currentHour = (currentDayTime / dayDuration) * hoursInDay;
+        
+        int nightStart = config.nightStartHour;
+        int nightEnd = config.nightEndHour;
+        
+        // 处理跨天的情况（如21:00-06:00）
+        if (nightStart > nightEnd)
+        {
+            // 夜晚跨越午夜，例如21:00-06:00
+            return currentHour >= nightStart || currentHour < nightEnd;
+        }
+        else
+        {
+            // 夜晚在同一天内
+            return currentHour >= nightStart && currentHour < nightEnd;
+        }
+    }
+    
+    /// <summary>
+    /// 获取当前游戏内小时（0-24）
+    /// </summary>
+    public float GetCurrentHour()
+    {
+        float hoursInDay = 24f;
+        return (currentDayTime / dayDuration) * hoursInDay;
+    }
 }
 
 

@@ -8,12 +8,20 @@ using UnityEngine;
 public class GameBalanceConfig : ScriptableObject
 {
     [Header("=== 时间系统 ===")]
-    [Tooltip("一天的长度（秒）- 基准: 600秒 = 10分钟")]
-    public float dayLengthSeconds = 600f;
+    [Tooltip("一天的长度（秒）- 基准: 900秒 = 15分钟")]
+    public float dayLengthSeconds = 900f;
     
     [Tooltip("时间倍率（调试用）- 设为2.0可加速测试")]
     [Range(0.1f, 5f)]
     public float timeScale = 1f;
+    
+    [Tooltip("夜晚开始时间（小时）- 21:00开始算夜晚")]
+    [Range(0, 23)]
+    public int nightStartHour = 21;
+    
+    [Tooltip("夜晚结束时间（小时）- 06:00结束夜晚")]
+    [Range(0, 23)]
+    public int nightEndHour = 6;
     
     
     [Header("=== 饱食度系统 ===")]
@@ -56,6 +64,20 @@ public class GameBalanceConfig : ScriptableObject
     
     [Tooltip("睡眠恢复量 - 基准: 30点 (一天可承受3次风险)")]
     public float sleepHealthRestore = 30f;
+    
+    
+    [Header("=== 精神度系统 ===")]
+    [Tooltip("最大精神度")]
+    public float maxMood = 100f;
+    
+    [Tooltip("夜晚在外每小时下降量 - 基准: 20点/小时")]
+    public float moodDecayAtNightOutside = 20f;
+    
+    [Tooltip("精神不稳阈值 - 低于此值触发精神不稳状态")]
+    public float moodLowThreshold = 30f;
+    
+    [Tooltip("睡眠恢复量 - 基础恢复量")]
+    public float moodRestoreFromSleep = 15f;
     
     
     [Header("=== 垃圾桶系统 ===")]
