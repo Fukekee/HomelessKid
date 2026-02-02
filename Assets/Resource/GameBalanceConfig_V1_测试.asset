@@ -12,20 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a98a78e0c026e12488399d6793185170, type: 3}
   m_Name: "GameBalanceConfig_V1_\u6D4B\u8BD5"
   m_EditorClassIdentifier: Assembly-CSharp::GameBalanceConfig
-  dayLengthSeconds: 600
+  dayLengthSeconds: 900
   timeScale: 1
+  nightStartHour: 21
+  nightEndHour: 6
   maxHunger: 100
-  hungerDrainPerSecond: 0.25
+  hungerDrainPerSecond: 0.05
   foodRestoreAmount: 40
   hungerLowThreshold: 30
   hungerDangerThreshold: 10
   maxHealth: 100
   healthDrainPerSecond: 0
-  binRiskChance: 0.15
+  binRiskChance: 0.344
   binRiskDamage: 10
   badFoodRiskChance: 0
   badFoodRiskDamage: 15
   sleepHealthRestore: 30
+  maxMood: 100
+  moodDecayAtNightOutside: 5
+  moodLowThreshold: 30
+  moodRestoreFromSleep: 10
   binSearchTime: 2.5
   binCooldown: 150
   binLootCountMin: 2
@@ -35,8 +41,8 @@ MonoBehaviour:
   binLostItemDropChance: 0.05
   groundTrashEncounterInterval: 25
   mainAreaDensityMultiplier: 1.5
-  dailyGroundTrashSpawnMin: 8
-  dailyGroundTrashSpawnMax: 12
+  dailyGroundTrashSpawnMin: 12
+  dailyGroundTrashSpawnMax: 16
   pityFoodChance: 0.1
   pityTriggerDays: 2
   shelterRecoveryMultiplier: 1.5
