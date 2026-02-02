@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f97517231404a4fbd1ba4c894eb281, type: 3}
+  m_Name: ShelterStageData_Stage0
+  m_EditorClassIdentifier: Assembly-CSharp::ShelterStageData
+  stageId: 0
+  stageName: "\u65E0\u5BB6/\u9732\u5BBF"
+  requiredMaterials: []
+  healthRecoveryMultiplier: 1
+  moodRecoveryMultiplier: 1
+  moodBaseBonus: 0
+  stageModelPrefab: {fileID: 8241593303862219448, guid: 7399803457a1be246be9b975b47634c7, type: 3}
+  description: "\u521D\u59CB\u72B6\u6001\uFF0C\u6CA1\u6709\u56FA\u5B9A\u7684\u4F4F\u6240"

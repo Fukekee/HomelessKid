@@ -1,6 +1,18 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 带权重的地面垃圾物品项（权重越大出现概率越高）
+/// </summary>
+[System.Serializable]
+public class WeightedTrashItem
+{
+    public ItemData item;
+    [Tooltip("出现权重，数值越大越容易刷出。例如木板3、布1 则木板约75%")]
+    [Min(0.01f)]
+    public float weight = 1f;
+}
+
 public class TrashSpawner : MonoBehaviour
 {
     [Header("配置来源")]
@@ -10,7 +22,12 @@ public class TrashSpawner : MonoBehaviour
     [Header("生成设置")]
     [SerializeField] private GameObject groundTrashPrefab;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
-    [SerializeField] private List<ItemData> trashItemPool = new List<ItemData>(); // 可生成的垃圾物品池
+    
+    [Header("物品池（二选一）")]
+    [Tooltip("推荐：按权重控制各物品出现概率（如木板3、布1）")]
+    [SerializeField] private List<WeightedTrashItem> weightedTrashPool = new List<WeightedTrashItem>();
+    [Tooltip("留空则用下方旧池子；若上方加权池有内容则优先用加权池")]
+    [SerializeField] private List<ItemData> trashItemPool = new List<ItemData>();
     
     private List<GameObject> spawnedTrash = new List<GameObject>();
     private DayManager dayManager;
@@ -55,9 +72,12 @@ public class TrashSpawner : MonoBehaviour
         // 清除旧的垃圾
         ClearSpawnedTrash();
         
-        if (groundTrashPrefab == null || spawnPoints.Count == 0 || trashItemPool.Count == 0)
+        bool useWeighted = GetWeightedPoolValid();
+        bool useFlat = !useWeighted && trashItemPool.Count > 0;
+        
+        if (groundTrashPrefab == null || spawnPoints.Count == 0 || (!useWeighted && !useFlat))
         {
-            Debug.LogWarning("TrashSpawner配置不完整");
+            Debug.LogWarning("TrashSpawner配置不完整：需要 groundTrashPrefab、spawnPoints 以及 weightedTrashPool 或 trashItemPool");
             return;
         }
         
@@ -79,8 +99,9 @@ public class TrashSpawner : MonoBehaviour
             Transform spawnPoint = availableSpawnPoints[randomIndex];
             availableSpawnPoints.RemoveAt(randomIndex);
             
-            // 随机选择垃圾物品
-            ItemData randomTrash = trashItemPool[Random.Range(0, trashItemPool.Count)];
+            // 按权重或均等随机选择物品
+            ItemData randomTrash = useWeighted ? PickItemByWeight() : trashItemPool[Random.Range(0, trashItemPool.Count)];
+            if (randomTrash == null) continue;
             
             // 生成垃圾
             GameObject trash = Instantiate(groundTrashPrefab, spawnPoint.position, spawnPoint.rotation);
@@ -94,6 +115,35 @@ public class TrashSpawner : MonoBehaviour
         }
         
         Debug.Log($"[TrashSpawner] 生成了 {spawnCount} 个垃圾（配置范围: {minSpawn}-{maxSpawn}）");
+    }
+    
+    private bool GetWeightedPoolValid()
+    {
+        if (weightedTrashPool == null || weightedTrashPool.Count == 0) return false;
+        float total = 0f;
+        foreach (var w in weightedTrashPool)
+        {
+            if (w != null && w.item != null) total += w.weight;
+        }
+        return total > 0f;
+    }
+    
+    private ItemData PickItemByWeight()
+    {
+        float totalWeight = 0f;
+        foreach (var w in weightedTrashPool)
+        {
+            if (w != null && w.item != null) totalWeight += w.weight;
+        }
+        if (totalWeight <= 0f) return null;
+        float r = Random.Range(0f, totalWeight);
+        foreach (var w in weightedTrashPool)
+        {
+            if (w == null || w.item == null) continue;
+            r -= w.weight;
+            if (r <= 0f) return w.item;
+        }
+        return weightedTrashPool[weightedTrashPool.Count - 1].item;
     }
     
     private void ClearSpawnedTrash()

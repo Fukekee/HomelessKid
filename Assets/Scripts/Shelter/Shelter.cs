@@ -13,6 +13,10 @@ public class Shelter : InteractableBase
     [Tooltip("所有阶段的配置列表（按stageId顺序）")]
     [SerializeField] private List<ShelterStageData> stageDataList = new List<ShelterStageData>();
     
+    [Header("模型切换")]
+    [Tooltip("基地外观模型的父节点，升级后会在此节点下切换为对应阶段的预制体")]
+    [SerializeField] private Transform modelContainer;
+    
     private SurvivalStats survivalStats;
     private DayManager dayManager;
     private TrashSpawner trashSpawner;
@@ -21,6 +25,7 @@ public class Shelter : InteractableBase
     // Stage管理
     private int currentStage = 0;
     private ShelterStageData currentStageData;
+    private GameObject currentModelInstance; // 当前显示的阶段模型实例
     
     private void Start()
     {
@@ -74,6 +79,29 @@ public class Shelter : InteractableBase
             // 如果找不到，使用第一个作为默认
             currentStageData = stageDataList[0];
             currentStage = currentStageData.stageId;
+        }
+        RefreshStageModel();
+    }
+    
+    /// <summary>
+    /// 根据当前阶段刷新基地外观模型（升级后切换为对应阶段的预制体）
+    /// </summary>
+    private void RefreshStageModel()
+    {
+        if (modelContainer == null) return;
+        
+        if (currentModelInstance != null)
+        {
+            Destroy(currentModelInstance);
+            currentModelInstance = null;
+        }
+        
+        if (currentStageData != null && currentStageData.stageModelPrefab != null)
+        {
+            currentModelInstance = Instantiate(currentStageData.stageModelPrefab, modelContainer);
+            currentModelInstance.transform.localPosition = Vector3.zero;
+            currentModelInstance.transform.localRotation = Quaternion.identity;
+            currentModelInstance.transform.localScale = Vector3.one;
         }
     }
     

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88907ab321b08c444ad833280de1fe72, type: 3}
+  m_Name: ItemData_WoodBoard
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: "\u6728\u677F"
+  itemType: 3
+  value: 5
+  isUsable: 0
+  hungerRestore: 0
+  description: "\u53EF\u4EE5\u7528\u6765\u5EFA\u9020\u57FA\u5730\u7684\u6750\u6599"

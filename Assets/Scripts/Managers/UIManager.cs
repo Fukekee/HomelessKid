@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
@@ -12,6 +13,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject progressBarPanel;
     [SerializeField] private Slider progressBar;
     
+    [Header("获得物品提示")]
+    [Tooltip("显示「获得了：xxx」的面板，留空则不显示获得提示")]
+    [SerializeField] private GameObject itemObtainedPanel;
+    [SerializeField] private TextMeshProUGUI itemObtainedText;
+    [Tooltip("提示显示时长（秒）")]
+    [SerializeField] private float itemObtainedDisplayDuration = 2f;
+    
     [Header("背包UI")]
     [SerializeField] private InventoryUI inventoryUI;
 
@@ -21,11 +29,31 @@ public class UIManager : MonoBehaviour
     private float currentProgressDuration = 0f;
     private float currentProgressTime = 0f;
     private bool isShowingProgress = false;
+    private Coroutine hideItemObtainedRoutine;
+    private Inventory cachedInventory;
 
     private void Awake()
     {
         if (inventoryUI == null)
             inventoryUI = FindObjectOfType<InventoryUI>(true);
+    }
+    
+    private void Start()
+    {
+        // 订阅背包添加物品事件，统一显示获得提示（翻桶、拾取地面垃圾、商店等）
+        cachedInventory = FindObjectOfType<Inventory>();
+        if (cachedInventory != null && itemObtainedPanel != null && itemObtainedText != null)
+        {
+            cachedInventory.OnItemAdded += ShowItemObtained;
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        if (cachedInventory != null)
+        {
+            cachedInventory.OnItemAdded -= ShowItemObtained;
+        }
     }
     
     private void Update()
@@ -96,6 +124,36 @@ public class UIManager : MonoBehaviour
         isShowingProgress = false;
         currentProgressTime = 0f;
         currentProgressDuration = 0f;
+    }
+    
+    /// <summary>
+    /// 显示获得物品提示（翻桶、拾取地面垃圾等获得物品时调用）
+    /// </summary>
+    public void ShowItemObtained(ItemData item, int amount)
+    {
+        if (item == null || itemObtainedPanel == null || itemObtainedText == null) return;
+        
+        string msg = amount > 1
+            ? $"获得了：{item.itemName} x{amount}"
+            : $"获得了：{item.itemName}";
+        itemObtainedText.text = msg;
+        itemObtainedPanel.SetActive(true);
+        
+        if (hideItemObtainedRoutine != null)
+        {
+            StopCoroutine(hideItemObtainedRoutine);
+        }
+        hideItemObtainedRoutine = StartCoroutine(HideItemObtainedAfterDelay());
+    }
+    
+    private IEnumerator HideItemObtainedAfterDelay()
+    {
+        yield return new WaitForSeconds(itemObtainedDisplayDuration);
+        if (itemObtainedPanel != null)
+        {
+            itemObtainedPanel.SetActive(false);
+        }
+        hideItemObtainedRoutine = null;
     }
     
     public void ToggleInventory()

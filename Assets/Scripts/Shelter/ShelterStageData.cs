@@ -42,6 +42,10 @@ public class ShelterStageData : ScriptableObject
     [Range(0f, 50f)]
     public float moodBaseBonus = 0f;
     
+    [Header("外观")]
+    [Tooltip("此阶段对应的基地模型预制体（可选，升级后会切换为此模型）")]
+    public GameObject stageModelPrefab;
+    
     [Header("描述")]
     [TextArea(2, 4)]
     public string description = "";
