@@ -114,9 +114,6 @@ public class GameBalanceConfig : ScriptableObject
     [Range(0.5f, 3f)]
     public float mainAreaDensityMultiplier = 1.5f;
     
-    [Tooltip("每日刷新地面垃圾数量 - 基准: 8-12个随机刷新点")]
-    public int dailyGroundTrashSpawnMin = 8;
-    public int dailyGroundTrashSpawnMax = 12;
     
     
     [Header("=== 世界兜底机制（温柔压力）===")]
@@ -195,11 +192,6 @@ public class GameBalanceConfig : ScriptableObject
         if (binLootCountMin > binLootCountMax)
         {
             binLootCountMax = binLootCountMin;
-        }
-        
-        if (dailyGroundTrashSpawnMin > dailyGroundTrashSpawnMax)
-        {
-            dailyGroundTrashSpawnMax = dailyGroundTrashSpawnMin;
         }
         
         // 在编辑器中显示理论数据

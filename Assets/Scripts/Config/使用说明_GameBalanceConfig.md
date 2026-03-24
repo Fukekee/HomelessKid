@@ -65,7 +65,7 @@ bool hasRisk = GameBalance.Config.RollBinRisk();
 ### 地面垃圾系统
 - **groundTrashEncounterInterval**: 目标遭遇率 (`25`秒/次)
 - **mainAreaDensityMultiplier**: 主拾荒区密度倍率 (`1.5x`)
-- **dailyGroundTrashSpawnMin/Max**: 每日刷新数量 (`8-12`个)
+- 每日可刷新物品的**生成数量**已在各区域的 TrashSpawner → SpawnZoneData 的 **Min Spawn / Max Spawn** 中设定，不再由此配置控制。
 
 ---
 

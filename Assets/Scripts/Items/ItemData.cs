@@ -7,6 +7,8 @@ public class ItemData : ScriptableObject
     public string itemName = "物品名称";
     public ItemType itemType = ItemType.Junk;
     public int value = 0; // 价值（用于出售）
+    [Tooltip("来源区域，与完整物品清单一致，供 GetItemsByRegion 查询")]
+    public string sourceRegion = "";
     
     [Header("使用属性")]
     public bool isUsable = false; // 是否可使用

@@ -142,11 +142,7 @@ public class RuntimeDebugPanel : MonoBehaviour
         SetupSliderAndInput(binCooldownSlider, binCooldownInput, 60f, 300f, config.binCooldown, 
             (value) => config.binCooldown = value);
         
-        // 地面垃圾系统
-        SetupSliderAndInput(groundTrashMinSlider, groundTrashMinInput, 5f, 20f, config.dailyGroundTrashSpawnMin, 
-            (value) => config.dailyGroundTrashSpawnMin = Mathf.RoundToInt(value));
-        SetupSliderAndInput(groundTrashMaxSlider, groundTrashMaxInput, 8f, 25f, config.dailyGroundTrashSpawnMax, 
-            (value) => config.dailyGroundTrashSpawnMax = Mathf.RoundToInt(value));
+        // 地面垃圾数量已改为在各区域 SpawnZoneData 中设定，此处不再绑定
     }
     
     private void SetupSliderAndInput(Slider slider, TMP_InputField input, float min, float max, float initialValue, System.Action<float> onValueChanged)
@@ -191,8 +187,6 @@ public class RuntimeDebugPanel : MonoBehaviour
         if (sleepRestoreSlider != null) sleepRestoreSlider.value = config.sleepHealthRestore;
         if (binSearchTimeSlider != null) binSearchTimeSlider.value = config.binSearchTime;
         if (binCooldownSlider != null) binCooldownSlider.value = config.binCooldown;
-        if (groundTrashMinSlider != null) groundTrashMinSlider.value = config.dailyGroundTrashSpawnMin;
-        if (groundTrashMaxSlider != null) groundTrashMaxSlider.value = config.dailyGroundTrashSpawnMax;
     }
     
     private void UpdateTheoryData()
@@ -224,7 +218,7 @@ public class RuntimeDebugPanel : MonoBehaviour
             $"风险概率: {config.binRiskChance * 100:F0}%\n\n" +
             
             $"<color=#95E1D3>地面垃圾</color>\n" +
-            $"每日生成: {config.dailyGroundTrashSpawnMin}-{config.dailyGroundTrashSpawnMax} 个\n\n" +
+            "每日生成数量由各区域在 TrashSpawner 的 SpawnZoneData 中设定\n\n" +
             
             $"<color=#FFAA00>压力评估</color>\n" +
             GetPressureAssessment(foodNeededPerDay);
@@ -252,8 +246,6 @@ public class RuntimeDebugPanel : MonoBehaviour
         config.foodRestoreAmount = 50f;
         config.binRiskChance = 0.1f;
         config.binCooldown = 120f;
-        config.dailyGroundTrashSpawnMin = 10;
-        config.dailyGroundTrashSpawnMax = 15;
         RefreshAllValues();
     }
     
@@ -264,8 +256,6 @@ public class RuntimeDebugPanel : MonoBehaviour
         config.foodRestoreAmount = 40f;
         config.binRiskChance = 0.15f;
         config.binCooldown = 150f;
-        config.dailyGroundTrashSpawnMin = 8;
-        config.dailyGroundTrashSpawnMax = 12;
         RefreshAllValues();
     }
     
@@ -276,8 +266,6 @@ public class RuntimeDebugPanel : MonoBehaviour
         config.foodRestoreAmount = 35f;
         config.binRiskChance = 0.2f;
         config.binCooldown = 180f;
-        config.dailyGroundTrashSpawnMin = 6;
-        config.dailyGroundTrashSpawnMax = 10;
         RefreshAllValues();
     }
 }
